@@ -60,7 +60,6 @@ public class Printer implements MethodChannel.MethodCallHandler {
     private boolean isZebraPrinter = true;
     private Socketmanager socketmanager;
 
-
     public Printer(ActivityPluginBinding binding, BinaryMessenger binaryMessenger) {
         this.context = binding.getActivity();
         this.binding = binding;
@@ -68,13 +67,11 @@ public class Printer implements MethodChannel.MethodCallHandler {
         methodChannel.setMethodCallHandler(this);
     }
 
-
     public static void discoveryPrinters(final Context context, final MethodChannel methodChannel) {
 
         try {
             sendedDiscoveredPrinters.clear();
-            for (DiscoveredPrinter dp :
-                    discoveredPrinters) {
+            for (DiscoveredPrinter dp : discoveredPrinters) {
                 addNewDiscoverPrinter(dp, context, methodChannel);
             }
             countEndScan = 0;
@@ -98,7 +95,7 @@ public class Printer implements MethodChannel.MethodCallHandler {
 
                 @Override
                 public void discoveryError(String s) {
-                    if(s.contains("Bluetooth radio is currently disabled"))
+                    if (s.contains("Bluetooth radio is currently disabled"))
                         onDiscoveryError(context, methodChannel, ON_DISCOVERY_ERROR_BLUETOOTH, s);
                     else
                         onDiscoveryError(context, methodChannel, ON_DISCOVERY_ERROR_GENERAL, s);
@@ -106,7 +103,6 @@ public class Printer implements MethodChannel.MethodCallHandler {
                     finishScanPrinter(context, methodChannel);
                 }
             });
-
 
             NetworkDiscoverer.findPrinters(new DiscoveryHandler() {
                 @Override
@@ -133,7 +129,8 @@ public class Printer implements MethodChannel.MethodCallHandler {
         }
     }
 
-    private static void onDiscoveryError(Context context, final MethodChannel methodChannel, final int errorCode, final String errorText) {
+    private static void onDiscoveryError(Context context, final MethodChannel methodChannel, final int errorCode,
+            final String errorText) {
         ((Activity) context).runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -148,10 +145,12 @@ public class Printer implements MethodChannel.MethodCallHandler {
 
     private void checkPermission(Context context, final MethodChannel.Result result) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (context.checkSelfPermission(android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            if (context.checkSelfPermission(
+                    android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 binding.addRequestPermissionsResultListener(new PluginRegistry.RequestPermissionsResultListener() {
                     @Override
-                    public boolean onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+                    public boolean onRequestPermissionsResult(int requestCode, String[] permissions,
+                            int[] grantResults) {
                         if (requestCode == ACCESS_COARSE_LOCATION_REQUEST_CODE) {
                             if (grantResults.length > 0)
                                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -171,8 +170,8 @@ public class Printer implements MethodChannel.MethodCallHandler {
                         return false;
                     }
                 });
-                ((Activity) context).requestPermissions(new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION
-                      },
+                ((Activity) context).requestPermissions(new String[] { android.Manifest.permission.ACCESS_FINE_LOCATION
+                },
                         ACCESS_COARSE_LOCATION_REQUEST_CODE);
 
             } else {
@@ -183,10 +182,8 @@ public class Printer implements MethodChannel.MethodCallHandler {
         }
     }
 
-
     private static void addPrinterToDiscoveryPrinterList(DiscoveredPrinter discoveredPrinter) {
-        for (DiscoveredPrinter dp :
-                discoveredPrinters) {
+        for (DiscoveredPrinter dp : discoveredPrinters) {
             if (dp.address.equals(discoveredPrinter.address))
                 return;
         }
@@ -194,15 +191,14 @@ public class Printer implements MethodChannel.MethodCallHandler {
         discoveredPrinters.add(discoveredPrinter);
     }
 
-
-    private static void addNewDiscoverPrinter(final DiscoveredPrinter discoveredPrinter, Context context, final MethodChannel methodChannel) {
+    private static void addNewDiscoverPrinter(final DiscoveredPrinter discoveredPrinter, Context context,
+            final MethodChannel methodChannel) {
 
         addPrinterToDiscoveryPrinterList(discoveredPrinter);
         ((Activity) context).runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                for (DiscoveredPrinter dp :
-                        sendedDiscoveredPrinters) {
+                for (DiscoveredPrinter dp : sendedDiscoveredPrinters) {
                     if (dp.address.equals(discoveredPrinter.address))
                         return;
                 }
@@ -213,18 +209,15 @@ public class Printer implements MethodChannel.MethodCallHandler {
                 if (discoveredPrinter.getDiscoveryDataMap().get("SYSTEM_NAME") != null) {
                     arguments.put("Name", discoveredPrinter.getDiscoveryDataMap().get("SYSTEM_NAME"));
                     arguments.put("IsWifi", true);
-                    methodChannel.invokeMethod("printerFound"
-                            , arguments);
+                    methodChannel.invokeMethod("printerFound", arguments);
                 } else {
                     arguments.put("Name", discoveredPrinter.getDiscoveryDataMap().get("FRIENDLY_NAME"));
                     arguments.put("IsWifi", false);
-                    methodChannel.invokeMethod("printerFound"
-                            , arguments);
+                    methodChannel.invokeMethod("printerFound", arguments);
                 }
             }
         });
     }
-
 
     private static void finishScanPrinter(final Context context, final MethodChannel methodChannel) {
         if (countEndScan == 2) {
@@ -252,11 +245,10 @@ public class Printer implements MethodChannel.MethodCallHandler {
         return false;
     }
 
-
     public void print(final String data) {
         new Thread(new Runnable() {
             public void run() {
-//                enableTestButton(false);
+                // enableTestButton(false);
                 Looper.prepare();
                 doConnectionTest(data);
                 Looper.loop();
@@ -264,7 +256,6 @@ public class Printer implements MethodChannel.MethodCallHandler {
             }
         }).start();
     }
-
 
     private void doConnectionTest(String data) {
 
@@ -290,10 +281,11 @@ public class Printer implements MethodChannel.MethodCallHandler {
         if (socketmanager.getIstate()) {
             setStatus(context.getResources().getString(R.string.done), context.getString(R.string.connectedColor));
         } else {
-            setStatus(context.getResources().getString(R.string.disconnect), context.getString(R.string.disconnectColor));
+            setStatus(context.getResources().getString(R.string.disconnect),
+                    context.getString(R.string.disconnectColor));
         }
 
-        byte sendCut[] = {0x0a, 0x0a, 0x1d, 0x56, 0x01};
+        byte sendCut[] = { 0x0a, 0x0a, 0x1d, 0x56, 0x01 };
         socketmanager.threadconnectwrite(sendCut);
         try {
             Thread.sleep(100);
@@ -301,8 +293,8 @@ public class Printer implements MethodChannel.MethodCallHandler {
             e.printStackTrace();
         }
         if (!socketmanager.getIstate()) {
-            setStatus(context.getResources().getString(R.string.disconnect)
-                    , context.getString(R.string.disconnectColor));
+            setStatus(context.getResources().getString(R.string.disconnect),
+                    context.getString(R.string.disconnectColor));
         }
     }
 
@@ -323,7 +315,6 @@ public class Printer implements MethodChannel.MethodCallHandler {
         }
     }
 
-
     public boolean connectToSelectPrinter(String address) {
         isZebraPrinter = true;
         setStatus(context.getString(R.string.connecting), context.getString(R.string.connectingColor));
@@ -338,7 +329,8 @@ public class Printer implements MethodChannel.MethodCallHandler {
             isBluetoothPrinter = false;
         }
         printer = connect(isBluetoothPrinter);
-        if (printer != null) return true;
+        if (printer != null)
+            return true;
         return false;
     }
 
@@ -350,19 +342,20 @@ public class Printer implements MethodChannel.MethodCallHandler {
                     public void run() {
                         try {
                             printerConnection.write("Test".getBytes());
-                            //This comment is a bad practice.
-//                        if (printerConnection instanceof TcpConnection) {
-//                            TcpConnection printerConnectionTemp = new TcpConnection(getTcpAddress(), getTcpPortNumber());
-//                            try {
-//                                printerConnectionTemp.open();
-//                            } catch (ConnectionException e) {
-//                                disconnect();
-//                                tempIsPrinterConnect = false;
-//
-//                            } finally {
-//                                printerConnectionTemp.close();
-//                            }
-//                        }
+                            // This comment is a bad practice.
+                            // if (printerConnection instanceof TcpConnection) {
+                            // TcpConnection printerConnectionTemp = new TcpConnection(getTcpAddress(),
+                            // getTcpPortNumber());
+                            // try {
+                            // printerConnectionTemp.open();
+                            // } catch (ConnectionException e) {
+                            // disconnect();
+                            // tempIsPrinterConnect = false;
+                            //
+                            // } finally {
+                            // printerConnectionTemp.close();
+                            // }
+                            // }
                         } catch (ConnectionException e) {
                             e.printStackTrace();
                             disconnect();
@@ -396,7 +389,6 @@ public class Printer implements MethodChannel.MethodCallHandler {
         }
     }
 
-
     public void connectToGenericPrinter(String ipAddress) {
         this.isZebraPrinter = false;
         if (isPrinterConnect().equals(context.getString(R.string.connected))) {
@@ -419,7 +411,6 @@ public class Printer implements MethodChannel.MethodCallHandler {
             setStatus(context.getString(R.string.disconnect), context.getString(R.string.disconnectColor));
         }
     }
-
 
     public ZebraPrinter connect(boolean isBluetoothPrinter) {
         if (isPrinterConnect().equals(context.getString(R.string.connected))) {
@@ -479,7 +470,6 @@ public class Printer implements MethodChannel.MethodCallHandler {
         return selectedAddress;
     }
 
-
     public void disconnect() {
         if (isZebraPrinter) {
             try {
@@ -491,7 +481,7 @@ public class Printer implements MethodChannel.MethodCallHandler {
             } catch (ConnectionException e) {
                 e.printStackTrace();
             } finally {
-//            enableTestButton(true);
+                // enableTestButton(true);
                 setStatus(context.getString(R.string.disconnect), context.getString(R.string.disconnectColor));
             }
         } else {
@@ -553,7 +543,6 @@ public class Printer implements MethodChannel.MethodCallHandler {
         return grayScale;
     }
 
-
     public static Bitmap rotateBitmap(Bitmap source, float angle) {
         Matrix matrix = new Matrix();
         matrix.postRotate(angle);
@@ -574,18 +563,18 @@ public class Printer implements MethodChannel.MethodCallHandler {
         if (mediaType.equals("Label")) {
             settings = "! U1 setvar \"media.type\" \"label\"\n" +
                     "             ! U1 setvar \"media.sense_mode\" \"gap\"\n" +
-                    //    "             ! U1 setvar \"print.tone\" \"0\"\n" +
+                    // " ! U1 setvar \"print.tone\" \"0\"\n" +
                     "              ~jc^xa^jus^xz";
         } else if (mediaType.equals("BlackMark")) {
             settings = "! U1 setvar \"media.type\" \"label\"\n" +
                     "             ! U1 setvar \"media.sense_mode\" \"bar\"\n" +
-                    //    "             ! U1 setvar \"print.tone\" \"0\"\n" +
+                    // " ! U1 setvar \"print.tone\" \"0\"\n" +
                     "              ~jc^xa^jus^xz";
         } else {
-            settings = //"! U1 SPEED 4\n" +
+            settings = // "! U1 SPEED 4\n" +
                     "      ! U1 setvar \"print.tone\" \"0\"\n" +
                             "      ! U1 setvar \"media.type\" \"journal\"\n";
-            //   "      ! U1 setvar \"media.sense_mode\" \"bar\"" +
+            // " ! U1 setvar \"media.sense_mode\" \"bar\"" +
             // " ~jc^xa^jus^xz";
         }
         setSettings(settings);
@@ -604,12 +593,12 @@ public class Printer implements MethodChannel.MethodCallHandler {
     @Override
     public void onMethodCall(@NonNull final MethodCall call, @NonNull final MethodChannel.Result result) {
         if (call.method.equals("print")) {
-            print(String.valueOf(call.argument("Data")));
+            print(call.argument("Data").toString());
         } else if (call.method.equals("checkPermission")) {
             checkPermission(context, result);
         } else if (call.method.equals("convertBase64ImageToZPLString")) {
-            convertBase64ImageToZPLString(String.valueOf(call.argument("data"))
-                    , Integer.valueOf(call.argument("rotation").toString()), result);
+            convertBase64ImageToZPLString(call.argument("Data").toStrinng(),
+                    Integer.valueOf(call.argument("rotation").toString()), result);
         } else if (call.method.equals("disconnect")) {
             new Thread(new Runnable() {
                 @Override
@@ -641,19 +630,21 @@ public class Printer implements MethodChannel.MethodCallHandler {
                 @Override
                 public void run() {
                     final boolean r = false;
-                    connectToSelectPrinter(String.valueOf(call.argument("Address")));
+                    connectToSelectPrinter(call.argument("Address").toString());
                     ((Activity) context).runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            if (r) result.success(true);
-                            else result.success(false);
+                            if (r)
+                                result.success(true);
+                            else
+                                result.success(false);
                         }
                     });
                 }
             }).start();
 
         } else if (call.method.equals(("connectToGenericPrinter"))) {
-            connectToGenericPrinter(String.valueOf(call.argument("Address")));
+            connectToGenericPrinter(call.argument("Address").toString());
         } else {
             result.notImplemented();
         }

@@ -11,7 +11,7 @@ class Zebrautility {
       Function(int errorCode, String errorText)? onDiscoveryError,
       Function(String address, String status, String color)? onChangePrinterStatus,
       onPermissionDenied}) async {
-    String id = await (_channel.invokeMethod("getInstance") as FutureOr<String>);
+    String id = await (_channel.invokeMethod("getInstance");
     ZebraPrinter printer = ZebraPrinter(
         id, onPrinterFound, onPrinterDiscoveryDone, onDiscoveryError, onChangePrinterStatus,
         onPermissionDenied: onPermissionDenied);

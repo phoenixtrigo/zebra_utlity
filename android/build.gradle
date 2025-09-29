@@ -25,7 +25,7 @@ android {
 
     namespace 'com.professor.zebrautility'
     
-    compileSdkVersion 29
+    compileSdkVersion 36
 
     defaultConfig {
         minSdkVersion 16
